@@ -56,11 +56,6 @@
 		</div>
 
 		<div>
-			<label for="website">Website</label>
-			<input id="website" name="website" type="url" value={form?.website ?? website} />
-		</div>
-
-		<div>
 			<input
 				type="submit"
 				class="button primary block"
