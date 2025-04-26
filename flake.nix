@@ -22,6 +22,11 @@
 
             pkgs.supabase-cli
             pkgs.docker
+
+            pkgs.python312
+            pkgs.python312Packages.requests
+            pkgs.python312Packages.colorama
+            pkgs.python312Packages.tqdm
           ];
         };
       });

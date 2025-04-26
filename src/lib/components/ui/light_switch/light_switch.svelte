@@ -1,7 +1,5 @@
 <script lang="ts">
-	// @ts-ignore
 	import Sun from 'lucide-svelte/icons/sun';
-	// @ts-ignore
 	import Moon from 'lucide-svelte/icons/moon';
 
 	import { toggleMode } from 'mode-watcher';

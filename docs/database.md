@@ -20,13 +20,13 @@ This document provides a detailed overview of the schema used for the applicatio
 
 Stores basic information about the users.
 
-| Column      | Type        | Description                                              |
-|-------------|-------------|----------------------------------------------------------|
-| `id`        | UUID        | Primary Key. Unique identifier for the user.             |
-| `email`     | TEXT        | Unique email address of the user.                        |
-| `password`  | TEXT        | The user's hashed password.                              |
-| `created_at`| TIMESTAMP   | Timestamp of when the user was created.                  |
-| `updated_at`| TIMESTAMP   | Timestamp of the last time the user information was updated. |
+| Column       | Type      | Description                                                  |
+| ------------ | --------- | ------------------------------------------------------------ |
+| `id`         | UUID      | Primary Key. Unique identifier for the user.                 |
+| `email`      | TEXT      | Unique email address of the user.                            |
+| `password`   | TEXT      | The user's hashed password.                                  |
+| `created_at` | TIMESTAMP | Timestamp of when the user was created.                      |
+| `updated_at` | TIMESTAMP | Timestamp of the last time the user information was updated. |
 
 ---
 
@@ -34,14 +34,14 @@ Stores basic information about the users.
 
 Stores profile information for users. Each user can have multiple profiles.
 
-| Column      | Type        | Description                                              |
-|-------------|-------------|----------------------------------------------------------|
-| `id`        | UUID        | Primary Key. Unique identifier for the profile.          |
-| `user_id`   | UUID        | Foreign Key referencing the `users` table.               |
-| `full_name` | VARCHAR(255)| Full name of the user (optional).                        |
-| `avatar_url`| TEXT        | URL to the user's profile picture (optional).            |
-| `created_at`| TIMESTAMP   | Timestamp of when the profile was created.               |
-| `updated_at`| TIMESTAMP   | Timestamp of the last time the profile was updated.      |
+| Column       | Type         | Description                                         |
+| ------------ | ------------ | --------------------------------------------------- |
+| `id`         | UUID         | Primary Key. Unique identifier for the profile.     |
+| `user_id`    | UUID         | Foreign Key referencing the `users` table.          |
+| `full_name`  | VARCHAR(255) | Full name of the user (optional).                   |
+| `avatar_url` | TEXT         | URL to the user's profile picture (optional).       |
+| `created_at` | TIMESTAMP    | Timestamp of when the profile was created.          |
+| `updated_at` | TIMESTAMP    | Timestamp of the last time the profile was updated. |
 
 ---
 
@@ -49,13 +49,13 @@ Stores profile information for users. Each user can have multiple profiles.
 
 Stores user ratings for movies.
 
-| Column      | Type        | Description                                              |
-|-------------|-------------|----------------------------------------------------------|
-| `id`        | UUID        | Primary Key. Unique identifier for the rating.           |
-| `profile_id`| UUID        | Foreign Key referencing the `profiles` table.            |
-| `movie_id`  | UUID        | Unique identifier for the movie being rated.             |
-| `rating`    | INTEGER     | Rating value between 1 and 5.                             |
-| `created_at`| TIMESTAMP   | Timestamp of when the rating was made.                   |
+| Column       | Type      | Description                                    |
+| ------------ | --------- | ---------------------------------------------- |
+| `id`         | UUID      | Primary Key. Unique identifier for the rating. |
+| `profile_id` | UUID      | Foreign Key referencing the `profiles` table.  |
+| `movie_id`   | UUID      | Unique identifier for the movie being rated.   |
+| `rating`     | INTEGER   | Rating value between 1 and 5.                  |
+| `created_at` | TIMESTAMP | Timestamp of when the rating was made.         |
 
 ---
 
@@ -63,12 +63,12 @@ Stores user ratings for movies.
 
 Stores movies that the user has added to their watchlist.
 
-| Column      | Type        | Description                                              |
-|-------------|-------------|----------------------------------------------------------|
-| `id`        | UUID        | Primary Key. Unique identifier for the watchlist entry.  |
-| `profile_id`| UUID        | Foreign Key referencing the `profiles` table.            |
-| `movie_id`  | UUID        | Unique identifier for the movie added to the watchlist.  |
-| `created_at`| TIMESTAMP   | Timestamp of when the movie was added to the watchlist.  |
+| Column       | Type      | Description                                             |
+| ------------ | --------- | ------------------------------------------------------- |
+| `id`         | UUID      | Primary Key. Unique identifier for the watchlist entry. |
+| `profile_id` | UUID      | Foreign Key referencing the `profiles` table.           |
+| `movie_id`   | UUID      | Unique identifier for the movie added to the watchlist. |
+| `created_at` | TIMESTAMP | Timestamp of when the movie was added to the watchlist. |
 
 ---
 
@@ -76,16 +76,16 @@ Stores movies that the user has added to their watchlist.
 
 Stores the user's movie preferences.
 
-| Column      | Type        | Description                                              |
-|-------------|-------------|----------------------------------------------------------|
-| `id`        | UUID        | Primary Key. Unique identifier for the preferences.      |
-| `profile_id`| UUID        | Foreign Key referencing the `profiles` table.            |
-| `like`      | TEXT[]      | Array of movie IDs the user likes.                       |
-| `love`      | TEXT[]      | Array of movie IDs the user loves.                       |
-| `dislike`   | TEXT[]      | Array of movie IDs the user dislikes.                    |
-| `hate`      | TEXT[]      | Array of movie IDs the user hates.                       |
-| `rated`     | TEXT[]      | Array of movie IDs the user has rated.                   |
-| `created_at`| TIMESTAMP   | Timestamp of when the preferences were created.          |
+| Column       | Type      | Description                                         |
+| ------------ | --------- | --------------------------------------------------- |
+| `id`         | UUID      | Primary Key. Unique identifier for the preferences. |
+| `profile_id` | UUID      | Foreign Key referencing the `profiles` table.       |
+| `like`       | TEXT[]    | Array of movie IDs the user likes.                  |
+| `love`       | TEXT[]    | Array of movie IDs the user loves.                  |
+| `dislike`    | TEXT[]    | Array of movie IDs the user dislikes.               |
+| `hate`       | TEXT[]    | Array of movie IDs the user hates.                  |
+| `rated`      | TEXT[]    | Array of movie IDs the user has rated.              |
+| `created_at` | TIMESTAMP | Timestamp of when the preferences were created.     |
 
 ---
 
@@ -93,16 +93,16 @@ Stores the user's movie preferences.
 
 Stores cached movie preferences for a user's profile to avoid recalculating preferences on every request.
 
-| Column           | Type        | Description                                              |
-|------------------|-------------|----------------------------------------------------------|
-| `id`             | UUID        | Primary Key. Unique identifier for the cached preferences.|
-| `profile_id`     | UUID        | Foreign Key referencing the `profiles` table.            |
-| `liked_genres`   | TEXT[]      | Array of liked genre IDs.                                |
-| `liked_keywords` | TEXT[]      | Array of liked keyword IDs.                              |
-| `liked_actors`   | TEXT[]      | Array of liked actor IDs.                                |
-| `liked_directors`| TEXT[]      | Array of liked director IDs.                             |
-| `created_at`     | TIMESTAMP   | Timestamp of when the cache was created.                 |
-| `updated_at`     | TIMESTAMP   | Timestamp of the last time the cache was updated.        |
+| Column            | Type      | Description                                                |
+| ----------------- | --------- | ---------------------------------------------------------- |
+| `id`              | UUID      | Primary Key. Unique identifier for the cached preferences. |
+| `profile_id`      | UUID      | Foreign Key referencing the `profiles` table.              |
+| `liked_genres`    | TEXT[]    | Array of liked genre IDs.                                  |
+| `liked_keywords`  | TEXT[]    | Array of liked keyword IDs.                                |
+| `liked_actors`    | TEXT[]    | Array of liked actor IDs.                                  |
+| `liked_directors` | TEXT[]    | Array of liked director IDs.                               |
+| `created_at`      | TIMESTAMP | Timestamp of when the cache was created.                   |
+| `updated_at`      | TIMESTAMP | Timestamp of the last time the cache was updated.          |
 
 ---
 
@@ -110,17 +110,17 @@ Stores cached movie preferences for a user's profile to avoid recalculating pref
 
 Stores movie information.
 
-| Column        | Type        | Description                                              |
-|---------------|-------------|----------------------------------------------------------|
-| `id`          | UUID        | Primary Key. Unique identifier for the movie.            |
-| `title`       | VARCHAR(255)| Title of the movie.                                      |
-| `release_date`| DATE        | Release date of the movie.                               |
-| `genres`      | TEXT[]      | Array of genre IDs associated with the movie.            |
-| `keywords`    | TEXT[]      | Array of keyword IDs associated with the movie.          |
-| `actors`      | TEXT[]      | Array of actor IDs associated with the movie.            |
-| `directors`   | TEXT[]      | Array of director IDs associated with the movie.         |
-| `overview`    | TEXT        | Brief description or overview of the movie.              |
-| `created_at`  | TIMESTAMP   | Timestamp of when the movie was created.                 |
+| Column         | Type         | Description                                      |
+| -------------- | ------------ | ------------------------------------------------ |
+| `id`           | UUID         | Primary Key. Unique identifier for the movie.    |
+| `title`        | VARCHAR(255) | Title of the movie.                              |
+| `release_date` | DATE         | Release date of the movie.                       |
+| `genres`       | TEXT[]       | Array of genre IDs associated with the movie.    |
+| `keywords`     | TEXT[]       | Array of keyword IDs associated with the movie.  |
+| `actors`       | TEXT[]       | Array of actor IDs associated with the movie.    |
+| `directors`    | TEXT[]       | Array of director IDs associated with the movie. |
+| `overview`     | TEXT         | Brief description or overview of the movie.      |
+| `created_at`   | TIMESTAMP    | Timestamp of when the movie was created.         |
 
 ---
 
