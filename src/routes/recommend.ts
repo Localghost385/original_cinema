@@ -1,10 +1,13 @@
 // recommend.ts
+
 export interface MovieRaw {
 	id: string;
 	genres: string[];
 	keywords: string[];
 	cast_names: string[];
 	director_names: string[];
+	vote_average?: number;
+	vote_count?: number;
 }
 
 export interface UserPrefsRaw {
@@ -69,7 +72,7 @@ export function movieToVector(
 			}
 		}
 	};
-	addTerms(movie.genres, 3); // Adjust weight
+	addTerms(movie.genres, 3);
 	addTerms(movie.keywords, 1);
 	addTerms(movie.cast_names, 2);
 	addTerms(movie.director_names, 3);
@@ -92,7 +95,7 @@ export function profileToVector(
 			}
 		}
 	};
-	addMap(prefs.genres, 3); // Adjust weight
+	addMap(prefs.genres, 3);
 	addMap(prefs.keywords, 1);
 	addMap(prefs.actors, 2);
 	addMap(prefs.directors, 3);
@@ -102,11 +105,31 @@ export function profileToVector(
 
 export function scoreAllMovies(
 	userVec: Vector,
-	movieVectors: Record<string, Vector>
+	movieVectors: Record<string, Vector>,
+	movieMeta: Record<string, { vote_average: number; vote_count: number }>
 ): { movieId: string; score: number }[] {
 	const out: { movieId: string; score: number }[] = [];
+
+	const counts = Object.values(movieMeta).map((m) => m.vote_count);
+	const maxCount = Math.max(...counts, 1); // Avoid divide-by-zero
+
 	for (const [id, mvec] of Object.entries(movieVectors)) {
-		out.push({ movieId: id, score: cosine(userVec, mvec) });
+		const baseScore = cosine(userVec, mvec);
+
+		const meta = movieMeta[id];
+		if (!meta) {
+			out.push({ movieId: id, score: baseScore });
+			continue;
+		}
+
+		const voteBoost =
+			0.02 * (meta.vote_average / 10) + // Small boost from average rating
+			0.05 * (meta.vote_count / maxCount); // Larger boost from normalized vote count
+
+		const finalScore = baseScore + voteBoost;
+
+		out.push({ movieId: id, score: finalScore });
 	}
+
 	return out;
 }

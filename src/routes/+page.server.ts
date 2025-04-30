@@ -4,7 +4,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { PageServerLoad } from './$types';
 
 const TMDB_API_KEY =
-	'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkMWM4ZWZhZjE5ODhjODNjZjBjNDRjOTk0ODczY2QzNiIsIm5iZiI6MTc0NTI1NjU4OS43MzMsInN1YiI6IjY4MDY4MDhkYWMwMmQ0NDA3YmFhZDI0YyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.JojH5OScAMuADI0hcoCt7CvtRwBeQRwj65klaDW4uPk'; // Replace with your TMDB API Key
+	'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJkMWM4ZWZhZjE5ODhjODNjZjBjNDRjOTk0ODczY2QzNiIsIm5iZiI6MTc0NTI1NjU4OS43MzMsInN1YiI6IjY4MDY4MDhkYWMwMmQ0NDA3YmFhZDI0YyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.JojH5OScAMuADI0hcoCt7CvtRwBeQRwj65klaDW4uPk';
 
 const fetchMoviesFromSupabase = async (supabase: SupabaseClient) => {
 	const { data, error } = await supabase
@@ -47,8 +47,6 @@ const fetchUserPreferences = async (supabase: SupabaseClient, user_id: string) =
 		throw new Error('User preferences not found');
 	}
 
-	console.log(data);
-
 	return {
 		genres: data.genres || {},
 		keywords: data.keywords || {},
@@ -61,11 +59,10 @@ export const load: PageServerLoad = async ({ url, locals: { safeGetSession, supa
 	const { session } = await safeGetSession();
 
 	if (!session) {
-		// User is not logged in, return basic info without throwing an error
 		return {
 			url: url.origin,
 			session: null,
-			movies: [] // No movies for unauthenticated users
+			movies: []
 		};
 	}
 
@@ -82,9 +79,10 @@ export const load: PageServerLoad = async ({ url, locals: { safeGetSession, supa
 			df: {},
 			totalDocs: rawMovies.length
 		};
+
 		for (const m of rawMovies) {
 			const seen = new Set<string>();
-			for (const t of [...m.genres, ...m.keywords, ...m.cast_names, ...m.director_names]) {
+			for (const t of [...(m.genres ?? []), ...(m.keywords ?? []), ...(m.cast_names ?? []), ...(m.director_names ?? [])]) {
 				if (!seen.has(t)) {
 					stats.df[t] = (stats.df[t] || 0) + 1;
 					seen.add(t);
@@ -100,14 +98,19 @@ export const load: PageServerLoad = async ({ url, locals: { safeGetSession, supa
 
 		const userVec = profileToVector(userPrefs, stats, indexMap, totalDim);
 
-		const scoredMovies = scoreAllMovies(userVec, movieVectors)
-			.sort((a, b) => b.score - a.score)
-			.slice(0, 200) // Top 10
-			.map(({ movieId, score }) => {
-				// Safely find the movie object
-				const m = rawMovies.find((movie) => movie.id === movieId);
+		const movieMeta: Record<string, { vote_average: number; vote_count: number }> = {};
+		for (const m of rawMovies) {
+			movieMeta[m.id] = {
+				vote_average: m.vote_average ?? 0,
+				vote_count: m.vote_count ?? 0
+			};
+		}
 
-				// If movie isn't found, return null (we filter it later)
+		const scoredMovies = scoreAllMovies(userVec, movieVectors, movieMeta)
+			.sort((a, b) => b.score - a.score)
+			.slice(0, 200)
+			.map(({ movieId, score }) => {
+				const m = rawMovies.find((movie) => movie.id === movieId);
 				if (!m) {
 					console.error(`Movie with ID ${movieId} not found in rawMovies`);
 					return null;
@@ -120,17 +123,17 @@ export const load: PageServerLoad = async ({ url, locals: { safeGetSession, supa
 					description: m.description,
 					genres: (m.genres || []).map((gid: string) => genreMap.get(parseInt(gid)) || gid),
 					actors: m.cast_names || [],
-					director: m.director_names || '',
+					director: m.director_names || [],
 					movie_id: m.id,
 					score
 				};
 			})
-			.filter((movie) => movie !== null); // Remove any null values
+			.filter((movie) => movie !== null);
 
 		return {
 			url: url.origin,
 			session,
-			movies: scoredMovies // Return the plain object here
+			movies: scoredMovies
 		};
 	} catch (error: any) {
 		console.error('Error in load function:', error);

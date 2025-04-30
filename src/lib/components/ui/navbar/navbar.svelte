@@ -1,6 +1,11 @@
 <script lang="ts">
 	import Light from '$lib/components/ui/light_switch/light_switch.svelte';
 	import { Button } from '$lib/components/ui/button';
+
+	export let data: {
+		session: { user: { id: string } };
+		supabase: import('@supabase/supabase-js').SupabaseClient;
+	};
 </script>
 
 <div
@@ -21,9 +26,14 @@
 			/>
 		</svg>
 
-		<Button variant="link" href="/" class="text-md px-1 font-semibold">cinematch</Button>
+		<Button variant="link" href="/" class="text-md px-1 font-semibold">original cinema</Button>
 	</div>
 	<div class=" flex flex-row items-center justify-evenly">
+		{#if data.session}
+			<Button variant="link" href="/account" class="text-md px-1 font-semibold">Account</Button>
+		{:else}
+			<Button variant="link" href="/signup" class="text-md px-1 font-semibold">Sign Up</Button>
+		{/if}
 		<Button variant="link" href="/login">Login</Button>
 		<Light />
 	</div>
