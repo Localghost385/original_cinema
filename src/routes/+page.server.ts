@@ -47,6 +47,8 @@ const fetchUserPreferences = async (supabase: SupabaseClient, user_id: string) =
 		throw new Error('User preferences not found');
 	}
 
+	console.log(data);
+
 	return {
 		genres: data.genres || {},
 		keywords: data.keywords || {},
@@ -58,8 +60,16 @@ const fetchUserPreferences = async (supabase: SupabaseClient, user_id: string) =
 export const load: PageServerLoad = async ({ url, locals: { safeGetSession, supabase } }) => {
 	const { session } = await safeGetSession();
 
+	if (!session) {
+		// User is not logged in, return basic info without throwing an error
+		return {
+			url: url.origin,
+			session: null,
+			movies: [] // No movies for unauthenticated users
+		};
+	}
+
 	try {
-		if (!session) throw new Error('No session found');
 		const user_id = session.user.id;
 
 		const [rawMovies, genreMap, userPrefs] = await Promise.all([
@@ -68,7 +78,10 @@ export const load: PageServerLoad = async ({ url, locals: { safeGetSession, supa
 			fetchUserPreferences(supabase, user_id)
 		]);
 
-		const stats = { df: {}, totalDocs: rawMovies.length };
+		const stats: { df: Record<string, number>; totalDocs: number } = {
+			df: {},
+			totalDocs: rawMovies.length
+		};
 		for (const m of rawMovies) {
 			const seen = new Set<string>();
 			for (const t of [...m.genres, ...m.keywords, ...m.cast_names, ...m.director_names]) {
@@ -89,7 +102,7 @@ export const load: PageServerLoad = async ({ url, locals: { safeGetSession, supa
 
 		const scoredMovies = scoreAllMovies(userVec, movieVectors)
 			.sort((a, b) => b.score - a.score)
-			.slice(0, 20) // Top 10
+			.slice(0, 200) // Top 10
 			.map(({ movieId, score }) => {
 				// Safely find the movie object
 				const m = rawMovies.find((movie) => movie.id === movieId);

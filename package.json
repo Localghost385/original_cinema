@@ -64,7 +64,10 @@
 		"@supabase/auth-ui-svelte": "^0.2.9",
 		"@supabase/ssr": "^0.6.1",
 		"@supabase/supabase-js": "^2.49.3",
-		"lucide-svelte": "^0.485.0",
-		"mode-watcher": "^0.5.1"
+		"add": "^2.0.6",
+		"chart.js": "^4.4.9",
+		"lucide-svelte": "^0.503.0",
+		"mode-watcher": "^0.5.1",
+		"svelte-motion": "^0.12.2"
 	}
 }

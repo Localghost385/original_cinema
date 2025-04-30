@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import MovieCard from '$lib/components/ui/movie_card/movieCard.svelte';
+	import Skeleton from '$lib/components/ui/movie_card/skeleton.svelte';
 	import type { SupabaseClient } from '@supabase/supabase-js';
 
 	export let movies: Array<{
@@ -19,9 +20,15 @@
 	export let supabase: SupabaseClient<any, 'public', any>;
 
 	let current = 0;
-	let loading = false;
+	let loading = true; // Start with loading state
 	let scrolling = false;
 	let cardRefs: HTMLElement[] = [];
+
+	async function fetchMovies() {
+		// Simulate a delay for fetching movies
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		loading = false;
+	}
 
 	function scrollToCurrentCard() {
 		const el = cardRefs[current];
@@ -60,6 +67,10 @@
 	function loadMoreMovies() {
 		if (loading) return;
 		loading = true;
+		// Simulate loading more movies
+		setTimeout(() => {
+			loading = false;
+		}, 1000);
 	}
 
 	function setCardRef(el: HTMLElement, index: number) {
@@ -81,6 +92,9 @@
 			if (e.key === 'ArrowDown') nextMovie();
 			else if (e.key === 'ArrowUp') prevMovie();
 		});
+
+		// Fetch movies on mount
+		fetchMovies();
 	});
 </script>
 
@@ -88,14 +102,24 @@
 	class="card-container relative h-[calc(100vh-64px)] snap-y snap-mandatory overflow-y-scroll"
 	on:wheel={onScroll}
 >
-	{#each movies as movie, index}
-		<div
-			class="flex h-[calc(100vh-64px)] snap-start items-center justify-center"
-			use:setCardRef={index}
-		>
-			<MovieCard {...movie} {supabase} />
-		</div>
-	{/each}
+	{#if loading}
+		<!-- Show skeleton loader while loading -->
+		{#each Array(5) as _, index}
+			<div class="flex h-[calc(100vh-64px)] snap-start items-center justify-center">
+				<Skeleton />
+			</div>
+		{/each}
+	{:else}
+		<!-- Show movie cards after loading -->
+		{#each movies as movie, index}
+			<div
+				class="flex h-[calc(100vh-64px)] snap-start items-center justify-center"
+				use:setCardRef={index}
+			>
+				<MovieCard {...movie} {supabase} />
+			</div>
+		{/each}
+	{/if}
 </div>
 
 <style>
