@@ -1,11 +1,9 @@
 <script lang="ts">
 	import Light from '$lib/components/ui/light_switch/light_switch.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import type { Session, SupabaseClient } from '@supabase/supabase-js';
 
-	export let data: {
-		session: { user: { id: string } };
-		supabase: import('@supabase/supabase-js').SupabaseClient;
-	};
+	export let data: { supabase: SupabaseClient<any, 'public', any>; session: Session | null };
 </script>
 
 <div
@@ -30,11 +28,10 @@
 	</div>
 	<div class=" flex flex-row items-center justify-evenly">
 		{#if data.session}
-			<Button variant="link" href="/account" class="text-md px-1 font-semibold">Account</Button>
+			<Button variant="link" href="/account">analytics</Button>
 		{:else}
-			<Button variant="link" href="/signup" class="text-md px-1 font-semibold">Sign Up</Button>
+			<Button variant="link" href="/login">Login</Button>
 		{/if}
-		<Button variant="link" href="/login">Login</Button>
 		<Light />
 	</div>
 </div>

@@ -30,7 +30,7 @@
 </svelte:head>
 
 <ModeWatcher />
-<Navbar />
+<Navbar {data} />
 
 <div class="h-full w-full">
 	<slot />
