@@ -44,7 +44,7 @@ const fetchUserPreferences = async (supabase: SupabaseClient, user_id: string) =
 		.single();
 
 	if (error || !data) {
-		throw new Error('User preferences not found');
+		throw new Error(`Failed to fetch user preferences: ${error?.message || 'No data found'}`);
 	}
 
 	return {
